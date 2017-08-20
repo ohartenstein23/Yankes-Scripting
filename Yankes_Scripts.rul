@@ -68,6 +68,17 @@
 #
 #   If the hit is completely negated by the shield and shield HP is remaining,
 #   the unit will flash the color given by the appropriate tag.
+#
+#
+# Items granting per-turn stun, energy, and morale regeneration/degeneration
+# newTurnItem - offset: 4
+#
+#   Every half-turn (beginning of both player and enemy turns, excluding the
+#   first player turn), items with the tags ITEM_STUN_PER_TURN,
+#   ITEM_ENERGY_PER_TURN, ITEM_MORALE_PER_TURN will check to see if they are in
+#   the inventory of a unit, and if so, will change the value mentioned in the
+#   nonzero tag by the amount in the tag, within the limits of 0 to the max
+#   possible value.
 
 items:
 #Uses alphabetical order for resistances stacking, names should go worst to best; unique Index should follow that
@@ -270,6 +281,9 @@ extended:
       #COLOR_X1_SILVER 14
       #COLOR_X1_SPECIAL 15
       #COLOR_X1_YELLOW  1
+      ITEM_STUN_PER_TURN: int
+      ITEM_ENERGY_PER_TURN: int
+      ITEM_MORALE_PER_TURN: int
     RuleArmor:
 #vampiric
       YTAG_DAMAGE_RETURNED_AS_HP_BUFF: int
@@ -1350,6 +1364,52 @@ extended:
               itemOwner.setTag Tag.UNIT_RESIST_TYPE_19 currentResistance;
             end;
           end;
+
+          return;
+
+      - offset: 4
+        code: |
+          # Items that change stun, energy, and morale on a per-(half)-turn basis
+          var ptre BattleUnit unit;
+          var ptr RuleItem itemRuleset;
+          var int changePerTurn;
+          var int currentValue;
+          var int changedValue;
+          var int maxValue;
+
+          item.getOwner unit;
+
+          if eq unit null;
+
+            return;
+
+          end;
+
+          item.getRuleItem itemRuleset;
+
+          itemRuleset.getTag changePerTurn Tag.ITEM_STUN_PER_TURN;
+          unit.getStun currentValue;
+          unit.getStunMax maxValue;
+          set changedValue currentValue;
+          add changedValue changePerTurn;
+          limit changedValue 0 maxValue;
+          unit.setStun changedValue;
+
+          itemRuleset.getTag changePerTurn Tag.ITEM_ENERGY_PER_TURN;
+          unit.getEnergy currentValue;
+          unit.getEnergyMax maxValue;
+          set changedValue currentValue;
+          add changedValue changePerTurn;
+          limit changedValue 0 maxValue;
+          unit.setEnergy changedValue;
+
+          itemRuleset.getTag changePerTurn Tag.ITEM_MORALE_PER_TURN;
+          unit.getMorale currentValue;
+          unit.getMoraleMax maxValue;
+          set changedValue currentValue;
+          add changedValue changePerTurn;
+          limit changedValue 0 maxValue;
+          unit.setMorale changedValue;
 
           return;
 
