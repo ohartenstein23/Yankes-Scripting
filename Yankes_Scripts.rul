@@ -79,6 +79,33 @@
 #   the inventory of a unit, and if so, will change the value mentioned in the
 #   nonzero tag by the amount in the tag, within the limits of 0 to the max
 #   possible value.
+#
+# Item Physical Shield - damage reduction on handheld items, chance to block
+# hitUnit - offset: 3
+#
+#   Hits on units are reduced according to the tag PHYSICAL_SHIELD_ARMOR, if an
+#   item with that tag is in the unit's hand. Melee attacks have a chance to be
+#   completely negated, according to the unit stats and the tags
+#   ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT and ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT.
+#   Melee attacks are considered hits with battle action type 10, BA_HIT or hits
+#   from ranged weapons with the tag ITEM_IS_MELEE set not equal to 0.
+#
+#   When hit, a unit's hands are checked for an item with the PHYSICAL_SHIELD_ARMOR
+#   tag, first the left and then the right. The dodge coefficients are taken
+#   from the first item found with the armor tag set. Next, the type of damage
+#   is compared to a list of damage types that should bypass physical shields -
+#   if it is one of those types, the script returns at this point without
+#   modifying damage. Next, melee hits take into account the dodge coefficients.
+#   The unit's melee stat is multiplied by ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT as
+#   a percentage, and the same is done for reactions and its coefficient, then
+#   both are added together. A 0-100 dice roll is made, and if the roll is less
+#   than this sum, then the power of the hit is set to 0 and the script returns.
+#
+#   Finally, the armor value of the physical shield item is modified by a set of
+#   standard resistances (lower numbers mean the shield is more effective
+#   against that damage type) and by a multiplier for the side of the unit that
+#   was hit. This armor value is then subtracted from the power of the hit and
+#   the script returns.
 
 items:
 #Uses alphabetical order for resistances stacking, names should go worst to best; unique Index should follow that
@@ -214,6 +241,9 @@ extended:
       YTAG_DAMAGE_RETURNED_RESIST_TYPE: int
 #defense      
       PHYSICAL_SHIELD_ARMOR: int
+      ITEM_IS_MELEE: int
+      ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT: int
+      ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT: int
       ITEM_RESIST_SLOT_INDEX: int
       ITEM_RESIST_TYPE_0: int
       ITEM_RESIST_TYPE_1: int
@@ -1758,21 +1788,29 @@ extended:
       - offset: 3
         code: |
           var ptr BattleItem shieldItem;
+          var ptr RuleItem damagingRuleset;
           var ptr RuleItem shieldRuleset;
           var int shieldArmor;
           var int shieldResistCoeff;
           var int shieldMeleeDodge;
+          var int shieldReactionsDodge;
+          var int unitMelee;
           var int unitReactions;
+          var int temp;
 
           # Check for shield in left hand first, then right.  If no shield, skip the script
           unit.getLeftHandWeapon shieldItem;
           shieldItem.getRuleItem shieldRuleset;
           shieldRuleset.getTag shieldArmor Tag.PHYSICAL_SHIELD_ARMOR;
+          shieldRuleset.getTag shieldMeleeDodge Tag.ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT;
+          shieldRuleset.getTag shieldReactionsDodge Tag.ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT;
 
           if eq shieldArmor 0;
             unit.getRightHandWeapon shieldItem;
             shieldItem.getRuleItem shieldRuleset;
             shieldRuleset.getTag shieldArmor Tag.PHYSICAL_SHIELD_ARMOR;
+            shieldRuleset.getTag shieldMeleeDodge Tag.ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT;
+            shieldRuleset.getTag shieldReactionsDodge Tag.ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT;
             if eq shieldArmor 0;
               return power part side;
             end;
@@ -1782,9 +1820,35 @@ extended:
           # If it's special, choking, heat, or cold, just skip the rest
           if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
             return power part side;
+          end;
+
+          # Check to see if the shield blocks all damage from a melee hit, like melee dodge
+          damaging_item.getRuleItem damagingRuleset;
+          damagingRuleset.getTag temp Tag.ITEM_IS_MELEE;
+          if or neq 0 temp eq battle_action BA_HIT;
+            # Get the stats for melee dodge
+            unit.Stats.getMelee unitMelee;
+            unit.Stats.getReactions unitReactions;
+            muldiv shieldMeleeDodge unitMelee 100;
+            muldiv shieldReactionsDodge unitReactions 100;
+            add shieldMeleeDodge shieldReactionsDodge;
+
+            # Modify by where the unit was hit
+            if or eq side SIDE_LEFT eq side SIDE_RIGHT;
+              div shieldMeleeDodge 2;
+            else or eq side SIDE_REAR eq side SIDE_UNDER;
+              div shieldMeleeDodge 4;
+            end;
+
+            battle_game.randomChance temp;
+            if lt temp shieldMeleeDodge;
+              set power 0;
+              return power part side;
+            end;
+          end;
 
           # Default resistances for all physical shields
-          else eq damaging_type 3; # Concussive
+          if eq damaging_type 3; # Concussive
             set shieldResistCoeff 90;
           else eq damaging_type 6; # Daze
             set shieldResistCoeff 80;
