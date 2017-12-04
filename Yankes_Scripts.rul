@@ -79,33 +79,6 @@
 #   the inventory of a unit, and if so, will change the value mentioned in the
 #   nonzero tag by the amount in the tag, within the limits of 0 to the max
 #   possible value.
-#
-# Item Physical Shield - damage reduction on handheld items, chance to block
-# hitUnit - offset: 3
-#
-#   Hits on units are reduced according to the tag PHYSICAL_SHIELD_ARMOR, if an
-#   item with that tag is in the unit's hand. Melee attacks have a chance to be
-#   completely negated, according to the unit stats and the tags
-#   ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT and ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT.
-#   Melee attacks are considered hits with battle action type 10, BA_HIT or hits
-#   from ranged weapons with the tag ITEM_IS_MELEE set not equal to 0.
-#
-#   When hit, a unit's hands are checked for an item with the PHYSICAL_SHIELD_ARMOR
-#   tag, first the left and then the right. The dodge coefficients are taken
-#   from the first item found with the armor tag set. Next, the type of damage
-#   is compared to a list of damage types that should bypass physical shields -
-#   if it is one of those types, the script returns at this point without
-#   modifying damage. Next, melee hits take into account the dodge coefficients.
-#   The unit's melee stat is multiplied by ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT as
-#   a percentage, and the same is done for reactions and its coefficient, then
-#   both are added together. A 0-100 dice roll is made, and if the roll is less
-#   than this sum, then the power of the hit is set to 0 and the script returns.
-#
-#   Finally, the armor value of the physical shield item is modified by a set of
-#   standard resistances (lower numbers mean the shield is more effective
-#   against that damage type) and by a multiplier for the side of the unit that
-#   was hit. This armor value is then subtracted from the power of the hit and
-#   the script returns.
 
 items:
 #Uses alphabetical order for resistances stacking, names should go worst to best; unique Index should follow that
@@ -120,15 +93,35 @@ items:
 # ITEM_RESIST_SLOT_INDEX: 7 - Goggles
 # ITEM_RESIST_SLOT_INDEX: 8 - Shirt
 # ITEM_RESIST_SLOT_INDEX: 9 - Coat
+# ITEM_RESIST_SLOT_INDEX: 10 - Amulets
   - type: STR_BLOOD_AX
     tags:
       YTAG_DAMAGE_RETURNED_AS_TIME: 25
       YTAG_DAMAGE_RETURNED_AS_ENERGY: 50
-      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 6
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 11
+  - type: STR_VAMPIRIC_SWORD
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_HP: 30
+      YTAG_DAMAGE_RETURNED_AS_ENERGY: 30
+      YTAG_DAMAGE_RETURNED_AS_MORALE: -10
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 11
+  - type: STR_DEATHBLADE
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_TIME: 15
+      YTAG_DAMAGE_RETURNED_AS_HP: 15
+      YTAG_DAMAGE_RETURNED_AS_MORALE: 30
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 15
   - type: AUX_VAMPBAT_WEAPON
     tags:
       YTAG_DAMAGE_RETURNED_AS_HP: 50
-      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 6
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 11
+  - type: STR_CRYSTAL_SKULL
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_TIME: 50
+      YTAG_DAMAGE_RETURNED_AS_HP: -5
+      YTAG_DAMAGE_RETURNED_AS_ENERGY: -10
+      YTAG_DAMAGE_RETURNED_AS_MORALE: -20
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 15
   - type: STR_FUR_HAT
     tags:
       ITEM_RESIST_TYPE_17: 85
@@ -146,6 +139,8 @@ items:
       ITEM_RESIST_SLOT_INDEX: 5
   - type: STR_THERMAL_SHIRT
     tags:
+      ITEM_RESIST_TYPE_5: 90
+      ITEM_MINIMUM_RESIST_TYPE_0: 50
       ITEM_RESIST_TYPE_16: 75
       ITEM_MINIMUM_RESIST_TYPE_16: 30
       ITEM_RESIST_SLOT_INDEX: 8
@@ -173,17 +168,44 @@ items:
     tags:
       ITEM_RESIST_TYPE_0: 85
       ITEM_MINIMUM_RESIST_TYPE_0: 30
+      ITEM_RESIST_TYPE_7: 90
+      ITEM_MINIMUM_RESIST_TYPE_7: 30
       ITEM_RESIST_SLOT_INDEX: 6
   - type: STR_BURA
     tags:
       ITEM_RESIST_TYPE_0: 80
       ITEM_MINIMUM_RESIST_TYPE_0: 30
+      ITEM_RESIST_TYPE_17: 90
+      ITEM_MINIMUM_RESIST_TYPE_17: 50
       ITEM_RESIST_SLOT_INDEX: 4
   - type: STR_LINGERIE
     tags:
       ITEM_RESIST_TYPE_0: 75
       ITEM_MINIMUM_RESIST_TYPE_0: 30
       ITEM_RESIST_SLOT_INDEX: 4
+      ITEM_MORALE_PER_TURN: 3
+  - type: STR_LUNAR_WARD
+    tags:
+      ITEM_RESIST_TYPE_15: 80
+      ITEM_MINIMUM_RESIST_TYPE_0: 0
+      ITEM_RESIST_SLOT_INDEX: 10
+  - type: STR_BEJEWELED_CAP
+    tags:
+      ITEM_RESIST_TYPE_15: 66
+      ITEM_MINIMUM_RESIST_TYPE_0: 0
+      ITEM_RESIST_TYPE_6: 90
+      ITEM_MINIMUM_RESIST_TYPE_6: 30
+      ITEM_RESIST_SLOT_INDEX: 2
+  - type: STR_HELLERIUM_CHARM
+    tags:
+      ITEM_STUN_PER_TURN: -1
+      ITEM_ENERGY_PER_TURN: 1
+      ITEM_MORALE_PER_TURN: 1
+  - type: STR_DRUG_DISPENSOR
+    tags:
+      ITEM_STUN_PER_TURN: -4
+      ITEM_ENERGY_PER_TURN: 4
+      ITEM_MORALE_PER_TURN: -2
   - type: STR_ENERGY_SHIELD_PRIMING
     tags:
       ITEM_ENERGY_SHIELD_CAPACITY: 50
@@ -203,6 +225,7 @@ items:
     costPrime:
       time: 50
     battleType: 10
+    recover: false
   - type: STR_ENERGY_SHIELD_NO_PRIMING
     tags:
       ITEM_ENERGY_SHIELD_CAPACITY: 100
@@ -214,21 +237,46 @@ items:
     floorSprite: 72
     bigSprite: 55
     battleType: 10
-
+    recover: false
 armors:
   - type: STR_VAMPY_ROBE_UC
     tags:
       YTAG_DAMAGE_RETURNED_AS_HP_BUFF: 10
       YTAG_DAMAGE_RETURNED_AS_ENERGY_BUFF: 50
-      YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 6
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 11
+  - type: STR_SLAYER_ARMOR_UC
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_STUN_BUFF: 50
+      YTAG_DAMAGE_RETURNED_AS_ENERGY_BUFF: 50
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 11
+      ARMOR_ENERGY_SHIELD_CAPACITY: 100
+      ARMOR_ENERGY_SHIELD_PER_TURN: 0
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 12
+      ARMOR_ENERGY_SHIELD_TYPE: 2
+  - type: SNAKEMAN_ARMOR_P6
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 50
+      ARMOR_ENERGY_SHIELD_PER_TURN: 0
+      #ARMOR_ENERGY_SHIELD_FLASH_COLOR: 1
+      ARMOR_ENERGY_SHIELD_TYPE: 1
+  - type: MUTON_ARMOR_P6
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 300
+      ARMOR_ENERGY_SHIELD_PER_TURN: 60
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 12
+      ARMOR_ENERGY_SHIELD_TYPE: 2
   - type: FLOATER_ARMOR_P6
     tags:
-      ARMOR_ENERGY_SHIELD_CAPACITY: 25
-      ARMOR_ENERGY_SHIELD_PER_TURN: 2
-      # color group 8 is default blue flash
-      #ARMOR_ENERGY_SHIELD_FLASH_COLOR: 8 
-      ARMOR_ENERGY_SHIELD_TYPE: 1
-
+      ARMOR_ENERGY_SHIELD_CAPACITY: 250
+      ARMOR_ENERGY_SHIELD_PER_TURN: 10
+      #ARMOR_ENERGY_SHIELD_FLASH_COLOR: 12
+      ARMOR_ENERGY_SHIELD_TYPE: 2
+  - type: MARSEC_ARMOR_P0
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 150
+      ARMOR_ENERGY_SHIELD_PER_TURN: 30
+      #ARMOR_ENERGY_SHIELD_FLASH_COLOR: 13
+      ARMOR_ENERGY_SHIELD_TYPE: 3
 extended:
   tags: # Remember to add tag definitions to same file as item/armor rulesets!
     RuleItem:
@@ -241,9 +289,6 @@ extended:
       YTAG_DAMAGE_RETURNED_RESIST_TYPE: int
 #defense      
       PHYSICAL_SHIELD_ARMOR: int
-      ITEM_IS_MELEE: int
-      ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT: int
-      ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT: int
       ITEM_RESIST_SLOT_INDEX: int
       ITEM_RESIST_TYPE_0: int
       ITEM_RESIST_TYPE_1: int
@@ -1709,44 +1754,57 @@ extended:
           armorRuleset.getTag shieldType Tag.ARMOR_ENERGY_SHIELD_TYPE;
 
           if or eq shieldType 0 eq shieldType 1; # Default and shield type 1
-            # Check which damage type and set shield's 'resistance'
-            # If it's special, choking, heat, or cold, just skip the rest
-            if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+          # Check which damage type and set shield's 'resistance'
+          # weak shield, only protects vs. laser, plasma, electric, emp, warp
+            if or eq damaging_type 0 eq damaging_type 1 eq damaging_type 2 eq damaging_type 3 eq damaging_type 6;
               return power part side;
-
+            else or eq damaging_type 7 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+              return power part side;
+            else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+              return power part side;
             # resistances
-            else eq damaging_type 4; # Laser
-              set shieldResistCoeff 35;
-            else eq damaging_type 5; # Plasma
-              set shieldResistCoeff 60;
+            else eq damaging_type 4; # Laser; very effective against it
+              set shieldResistCoeff 50;
+            else eq damaging_type 13; # EMP, x2.5 damage
+              set shieldResistCoeff 250;
             else; # All other damage types
               set shieldResistCoeff 100;
             end;
 
           else eq shieldType 2;
-            if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+          #medium shield, average protection against everything, does protect vs. AP, HE, melee
+            if or eq damaging_type 0 eq damaging_type 6 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10;
               return power part side;
-            else eq damaging_type 4; # Laser
-              set shieldResistCoeff 35;
-            else eq damaging_type 5; # Plasma
-              set shieldResistCoeff 60;
+            else or eq damaging_type 11 eq damaging_type 15  eq damaging_type 16 eq damaging_type 17;
+              return power part side;
+            else eq damaging_type 13; # EMP, x2.5 damage
+              set shieldResistCoeff 250;
             else; # All other damage types
               set shieldResistCoeff 100;
             end;
 
           else eq shieldType 3;
-            if or eq damaging_type 0 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+          #advanced shield, protects against everything but charm, smoke, bio and anti-emp
+            if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
               return power part side;
-            else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+            else or eq damaging_type 16 eq damaging_type 17;
               return power part side;
             else eq damaging_type 1; # AP
-              set shieldResistCoeff 75;
-            else eq damaging_type 4; # Laser
               set shieldResistCoeff 50;
-            else eq damaging_type 5; # Plasma
+            else eq damaging_type 3; # HE
               set shieldResistCoeff 50;
-            else eq damaging_type 13; # EMP
-              set shieldResistCoeff 200;
+            else eq damaging_type 6; # Stun
+              set shieldResistCoeff 25;
+            else eq damaging_type 7; # Melee
+              set shieldResistCoeff 50;
+            else eq damaging_type 8; # Acid; very effective because low attack energy
+              set shieldResistCoeff 25;
+            else eq damaging_type 13; # EMP, x2.5 damage
+              set shieldResistCoeff 250;
+            else eq damaging_type 14; # Warp
+              set shieldResistCoeff 50;
+            else eq damaging_type 15; # Mental; very effective because low attack energy
+              set shieldResistCoeff 25;
             else; # All other damage types
               set shieldResistCoeff 100;
             end;
@@ -1788,29 +1846,21 @@ extended:
       - offset: 3
         code: |
           var ptr BattleItem shieldItem;
-          var ptr RuleItem damagingRuleset;
           var ptr RuleItem shieldRuleset;
           var int shieldArmor;
           var int shieldResistCoeff;
           var int shieldMeleeDodge;
-          var int shieldReactionsDodge;
-          var int unitMelee;
           var int unitReactions;
-          var int temp;
 
           # Check for shield in left hand first, then right.  If no shield, skip the script
           unit.getLeftHandWeapon shieldItem;
           shieldItem.getRuleItem shieldRuleset;
           shieldRuleset.getTag shieldArmor Tag.PHYSICAL_SHIELD_ARMOR;
-          shieldRuleset.getTag shieldMeleeDodge Tag.ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT;
-          shieldRuleset.getTag shieldReactionsDodge Tag.ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT;
 
           if eq shieldArmor 0;
             unit.getRightHandWeapon shieldItem;
             shieldItem.getRuleItem shieldRuleset;
             shieldRuleset.getTag shieldArmor Tag.PHYSICAL_SHIELD_ARMOR;
-            shieldRuleset.getTag shieldMeleeDodge Tag.ITEM_SHIELD_BLOCK_MELEE_COEFFICIENT;
-            shieldRuleset.getTag shieldReactionsDodge Tag.ITEM_SHIELD_BLOCK_REACTIONS_COEFFICIENT;
             if eq shieldArmor 0;
               return power part side;
             end;
@@ -1820,35 +1870,9 @@ extended:
           # If it's special, choking, heat, or cold, just skip the rest
           if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
             return power part side;
-          end;
-
-          # Check to see if the shield blocks all damage from a melee hit, like melee dodge
-          damaging_item.getRuleItem damagingRuleset;
-          damagingRuleset.getTag temp Tag.ITEM_IS_MELEE;
-          if or neq 0 temp eq battle_action BA_HIT;
-            # Get the stats for melee dodge
-            unit.Stats.getMelee unitMelee;
-            unit.Stats.getReactions unitReactions;
-            muldiv shieldMeleeDodge unitMelee 100;
-            muldiv shieldReactionsDodge unitReactions 100;
-            add shieldMeleeDodge shieldReactionsDodge;
-
-            # Modify by where the unit was hit
-            if or eq side SIDE_LEFT eq side SIDE_RIGHT;
-              div shieldMeleeDodge 2;
-            else or eq side SIDE_REAR eq side SIDE_UNDER;
-              div shieldMeleeDodge 4;
-            end;
-
-            battle_game.randomChance temp;
-            if lt temp shieldMeleeDodge;
-              set power 0;
-              return power part side;
-            end;
-          end;
 
           # Default resistances for all physical shields
-          if eq damaging_type 3; # Concussive
+          else eq damaging_type 3; # Concussive
             set shieldResistCoeff 90;
           else eq damaging_type 6; # Daze
             set shieldResistCoeff 80;
