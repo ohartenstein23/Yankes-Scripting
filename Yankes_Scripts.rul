@@ -121,6 +121,7 @@ items:
 # ITEM_RESIST_SLOT_INDEX: 8 - Shirt
 # ITEM_RESIST_SLOT_INDEX: 9 - Coat
 # ITEM_RESIST_SLOT_INDEX: 10 - Amulets
+# ITEM_RESIST_SLOT_INDEX: 11 - Weapons
   - type: STR_BLOOD_AX
     tags:
       YTAG_DAMAGE_RETURNED_AS_TIME: 25
@@ -142,6 +143,10 @@ items:
     tags:
       YTAG_DAMAGE_RETURNED_AS_HP: 50
       YTAG_DAMAGE_RETURNED_RESIST_TYPE: 11
+  - type: STR_FLAME_WHIP
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_TIME: 33
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE: 15
   - type: STR_CRYSTAL_SKULL
     tags:
       YTAG_DAMAGE_RETURNED_AS_TIME: 50
@@ -149,6 +154,14 @@ items:
       YTAG_DAMAGE_RETURNED_AS_ENERGY: -10
       YTAG_DAMAGE_RETURNED_AS_MORALE: -20
       YTAG_DAMAGE_RETURNED_RESIST_TYPE: 15
+  - type: STR_IRON_ROD
+    tags:
+      ITEM_RESIST_SLOT_INDEX: 11
+      ITEM_RESIST_TYPE_12: 75
+      ITEM_MINIMUM_RESIST_TYPE_12: 1
+      ITEM_RESIST_TYPE_15: 75
+      ITEM_MINIMUM_RESIST_TYPE_15: 1
+      ITEM_MORALE_PER_TURN: 2
   - type: STR_FUR_HAT
     tags:
       ITEM_RESIST_TYPE_17: 85
@@ -176,6 +189,12 @@ items:
       ITEM_RESIST_SLOT_INDEX: 1
       ITEM_RESIST_TYPE_9: 34
       ITEM_MINIMUM_RESIST_TYPE_9: 50
+  - type: STR_SHEPHERDS_STAFF
+    tags:
+      ITEM_RESIST_SLOT_INDEX: 11
+      ITEM_RESIST_TYPE_7: 85
+      ITEM_MINIMUM_RESIST_TYPE_7: 30
+      ITEM_MORALE_PER_TURN: -2
   - type: STR_POLICE_SHIELD
     tags:
       ITEM_RESIST_SLOT_INDEX: 0
@@ -214,18 +233,17 @@ items:
   - type: STR_LUNAR_WARD
     tags:
       ITEM_RESIST_TYPE_15: 80
-      ITEM_MINIMUM_RESIST_TYPE_0: 0
+      ITEM_MINIMUM_RESIST_TYPE_15: 1
       ITEM_RESIST_SLOT_INDEX: 10
   - type: STR_BEJEWELED_CAP
     tags:
       ITEM_RESIST_TYPE_15: 66
-      ITEM_MINIMUM_RESIST_TYPE_0: 0
+      ITEM_MINIMUM_RESIST_TYPE_15: 1
       ITEM_RESIST_TYPE_6: 90
       ITEM_MINIMUM_RESIST_TYPE_6: 30
       ITEM_RESIST_SLOT_INDEX: 2
   - type: STR_HELLERIUM_CHARM
     tags:
-      ITEM_STUN_PER_TURN: -1
       ITEM_ENERGY_PER_TURN: 1
       ITEM_MORALE_PER_TURN: 1
   - type: STR_DRUG_DISPENSOR
@@ -271,13 +289,50 @@ armors:
       YTAG_DAMAGE_RETURNED_AS_HP_BUFF: 10
       YTAG_DAMAGE_RETURNED_AS_ENERGY_BUFF: 50
       YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 11
+  - type: STR_BERSERKER_ARMOR_UC
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_STUN_BUFF: 25
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 7
+  - type: STR_DEMONIC_ARMOR_UC
+    tags:
+      YTAG_DAMAGE_RETURNED_AS_STUN_BUFF: 25
+      YTAG_DAMAGE_RETURNED_AS_ENERGY_BUFF: 25
+      YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 11
+      ARMOR_ENERGY_SHIELD_CAPACITY: 66
+      ARMOR_ENERGY_SHIELD_PER_TURN: 33
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 12
+      ARMOR_ENERGY_SHIELD_TYPE: 2
   - type: STR_SLAYER_ARMOR_UC
     tags:
       YTAG_DAMAGE_RETURNED_AS_STUN_BUFF: 50
       YTAG_DAMAGE_RETURNED_AS_ENERGY_BUFF: 50
       YTAG_DAMAGE_RETURNED_RESIST_TYPE_ARMOR: 11
-      ARMOR_ENERGY_SHIELD_CAPACITY: 100
+      ARMOR_ENERGY_SHIELD_CAPACITY: 300
       ARMOR_ENERGY_SHIELD_PER_TURN: 0
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 2
+      ARMOR_ENERGY_SHIELD_TYPE: 2
+  - type: STR_SORCERESS_ARMOR_UC
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 200
+      ARMOR_ENERGY_SHIELD_PER_TURN: 50
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 13
+      ARMOR_ENERGY_SHIELD_TYPE: 3
+  - type: STR_SORCERESS_ARMOR_SEA_UC
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 200
+      ARMOR_ENERGY_SHIELD_PER_TURN: 50
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 13
+      ARMOR_ENERGY_SHIELD_TYPE: 3
+  - type: STR_SORCERESS_ARMOR_SPACE_UC
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 200
+      ARMOR_ENERGY_SHIELD_PER_TURN: 50
+      ARMOR_ENERGY_SHIELD_FLASH_COLOR: 13
+      ARMOR_ENERGY_SHIELD_TYPE: 3
+  - type: SECTOID_ARMOR_P13
+    tags:
+      ARMOR_ENERGY_SHIELD_CAPACITY: 100
+      ARMOR_ENERGY_SHIELD_PER_TURN: 20
       ARMOR_ENERGY_SHIELD_FLASH_COLOR: 12
       ARMOR_ENERGY_SHIELD_TYPE: 2
   - type: SNAKEMAN_ARMOR_P6
@@ -447,6 +502,7 @@ extended:
       UNIT_RESIST_TYPE_18: int
       UNIT_RESIST_TYPE_19: int
       UNIT_ENERGY_SHIELD_HP: int
+      UNIT_RECOLOR_DESYNC: int
       UNIT_RECOLOR_COLOR: int
       UNIT_RECOLOR_START_FRAME: int
       UNIT_RECOLOR_FRAME_LENGTH: int
@@ -639,7 +695,20 @@ extended:
           return;
 
     createUnit:
+#*** Sets the frequency and offset for periodic unit recolors for buffs and debuffs ***
       - offset: 1
+        code: |
+          var int recolorPeriod;
+          var int desync;
+
+          set recolorPeriod 32; # units flash every 32 frames
+          unit.getId desync;
+          offsetmod desync 11 0 recolorPeriod; # creates a desynchronization between unit flashes
+          unit.setTag Tag.UNIT_RECOLOR_DESYNC desync;
+
+          return;
+
+      - offset: 2
         code: |
           # Set energy shields on unit armor at beginning of the battle
 
@@ -738,6 +807,11 @@ extended:
           var int shieldPerTurn;
           var int shieldHp;
 
+          # Make sure this doesn't run an extra time when civilians have a turn
+          if eq side 2;
+            return;
+          end;
+
           unit.getRuleArmor armorRuleset;
           armorRuleset.getTag shieldCapacity Tag.ARMOR_ENERGY_SHIELD_CAPACITY;
           armorRuleset.getTag shieldPerTurn Tag.ARMOR_ENERGY_SHIELD_PER_TURN;
@@ -765,6 +839,11 @@ extended:
           var int shieldPerTurn;
           var int shieldHp;
           var int temp;
+
+          # Make sure this doesn't run an extra time when civilians have a turn
+          if eq side 2;
+            return;
+          end;
 
           # Recharge/decay handling for shield items
           item.getRuleItem shieldRule;
@@ -1482,6 +1561,11 @@ extended:
           var int changedValue;
           var int maxValue;
 
+          # Make sure this doesn't run an extra time when civilians have a turn
+          if eq side 2;
+            return;
+          end;
+
           item.getOwner unit;
 
           if eq unit null;
@@ -1568,43 +1652,56 @@ extended:
 
                 if or eq shieldType 0 eq shieldType 1; # Default and shield type 1
                   # Check which damage type and set shield's 'resistance'
-                  # If it's special, choking, heat, or cold, just skip the rest
-                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                  # weak shield, only protects vs. laser, plasma, electric, emp, warp
+                  if or eq damaging_type 0 eq damaging_type 1 eq damaging_type 2 eq damaging_type 3 eq damaging_type 6;
                     return power part side;
-
+                  else or eq damaging_type 7 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                    return power part side;
+                  else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+                    return power part side;
                   # resistances
-                  else eq damaging_type 4; # Laser
-                    set shieldResistCoeff 35;
-                  else eq damaging_type 5; # Plasma
-                    set shieldResistCoeff 60;
+                  else eq damaging_type 4; # Laser; very effective against it
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
 
                 else eq shieldType 2;
-                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                #medium shield, average protection against everything, does protect vs. AP, HE, melee
+                  if or eq damaging_type 0 eq damaging_type 6 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10;
                     return power part side;
-                  else eq damaging_type 4; # Laser
-                    set shieldResistCoeff 35;
-                  else eq damaging_type 5; # Plasma
-                    set shieldResistCoeff 60;
+                  else or eq damaging_type 11 eq damaging_type 15  eq damaging_type 16 eq damaging_type 17;
+                    return power part side;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
 
                 else eq shieldType 3;
-                  if or eq damaging_type 0 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                #advanced shield, protects against everything but charm, smoke, bio and anti-emp
+                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
                     return power part side;
-                  else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+                  else or eq damaging_type 16 eq damaging_type 17;
                     return power part side;
                   else eq damaging_type 1; # AP
-                    set shieldResistCoeff 75;
-                  else eq damaging_type 4; # Laser
                     set shieldResistCoeff 50;
-                  else eq damaging_type 5; # Plasma
+                  else eq damaging_type 3; # HE
                     set shieldResistCoeff 50;
-                  else eq damaging_type 13; # EMP
-                    set shieldResistCoeff 200;
+                  else eq damaging_type 6; # Stun
+                    set shieldResistCoeff 25;
+                  else eq damaging_type 7; # Melee
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 8; # Acid; very effective because low attack energy
+                    set shieldResistCoeff 25;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
+                  else eq damaging_type 14; # Warp
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 15; # Mental; very effective because low attack energy
+                    set shieldResistCoeff 25;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
@@ -1681,43 +1778,56 @@ extended:
 
                 if or eq shieldType 0 eq shieldType 1; # Default and shield type 1
                   # Check which damage type and set shield's 'resistance'
-                  # If it's special, choking, heat, or cold, just skip the rest
-                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                  # weak shield, only protects vs. laser, plasma, electric, emp, warp
+                  if or eq damaging_type 0 eq damaging_type 1 eq damaging_type 2 eq damaging_type 3 eq damaging_type 6;
                     return power part side;
-
+                  else or eq damaging_type 7 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                    return power part side;
+                  else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+                    return power part side;
                   # resistances
-                  else eq damaging_type 4; # Laser
-                    set shieldResistCoeff 35;
-                  else eq damaging_type 5; # Plasma
-                    set shieldResistCoeff 60;
+                  else eq damaging_type 4; # Laser; very effective against it
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
 
                 else eq shieldType 2;
-                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                #medium shield, average protection against everything, does protect vs. AP, HE, melee
+                  if or eq damaging_type 0 eq damaging_type 6 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10;
                     return power part side;
-                  else eq damaging_type 4; # Laser
-                    set shieldResistCoeff 35;
-                  else eq damaging_type 5; # Plasma
-                    set shieldResistCoeff 60;
+                  else or eq damaging_type 11 eq damaging_type 15  eq damaging_type 16 eq damaging_type 17;
+                    return power part side;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
 
                 else eq shieldType 3;
-                  if or eq damaging_type 0 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
+                #advanced shield, protects against everything but charm, smoke, bio and anti-emp
+                  if or eq damaging_type 0 eq damaging_type 9 eq damaging_type 10 eq damaging_type 11;
                     return power part side;
-                  else or eq damaging_type 15 eq damaging_type 16 eq damaging_type 17;
+                  else or eq damaging_type 16 eq damaging_type 17;
                     return power part side;
                   else eq damaging_type 1; # AP
-                    set shieldResistCoeff 75;
-                  else eq damaging_type 4; # Laser
                     set shieldResistCoeff 50;
-                  else eq damaging_type 5; # Plasma
+                  else eq damaging_type 3; # HE
                     set shieldResistCoeff 50;
-                  else eq damaging_type 13; # EMP
-                    set shieldResistCoeff 200;
+                  else eq damaging_type 6; # Stun
+                    set shieldResistCoeff 25;
+                  else eq damaging_type 7; # Melee
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 8; # Acid; very effective because low attack energy
+                    set shieldResistCoeff 25;
+                  else eq damaging_type 13; # EMP, x2.5 damage
+                    set shieldResistCoeff 250;
+                  else eq damaging_type 14; # Warp
+                    set shieldResistCoeff 50;
+                  else eq damaging_type 15; # Mental; very effective because low attack energy
+                    set shieldResistCoeff 25;
                   else; # All other damage types
                     set shieldResistCoeff 100;
                   end;
@@ -1803,9 +1913,9 @@ extended:
 
           else eq shieldType 2;
           #medium shield, average protection against everything, does protect vs. AP, HE, melee
-            if or eq damaging_type 0 eq damaging_type 6 eq damaging_type 8 eq damaging_type 9 eq damaging_type 10;
+            if or eq damaging_type 0 eq damaging_type 2 eq damaging_type 6 eq damaging_type 8 eq damaging_type 9;
               return power part side;
-            else or eq damaging_type 11 eq damaging_type 15  eq damaging_type 16 eq damaging_type 17;
+            else or eq damaging_type 10 eq damaging_type 11 eq damaging_type 15  eq damaging_type 16 eq damaging_type 17;
               return power part side;
             else eq damaging_type 13; # EMP, x2.5 damage
               set shieldResistCoeff 250;
@@ -2027,6 +2137,74 @@ extended:
           return power part side;
 
     recolorUnitSprite:
+#*** Handles periodic recolors due to energy shields on units ***
+      - offset: 1
+        code: |
+          var int frame;
+          var int frameLength;
+          var int recolorPeriod;
+          var int desync;
+          var int color;
+          var int newShade;
+          var int temp;
+          var ptr RuleArmor armorRuleset;
+
+          # Check to make sure this unit isn't set to be recolored by a hit first
+          unit.getTag frame Tag.UNIT_RECOLOR_START_FRAME;
+          unit.getTag frameLength Tag.UNIT_RECOLOR_FRAME_LENGTH;
+
+          if neq frame 0;
+
+            set temp anim_frame;
+            sub temp frame;
+
+            if lt temp frameLength;
+
+              return new_pixel;
+
+            end;
+
+          end;
+
+          set recolorPeriod 32;
+          set frameLength 4;
+
+          unit.getTag desync Tag.UNIT_RECOLOR_DESYNC;
+          set frame anim_frame;
+          add frame desync;
+          mod frame recolorPeriod;
+
+          # First, a blue flash if the unit has an energy shield
+          unit.getTag temp Tag.UNIT_ENERGY_SHIELD_HP;
+
+          if and neq temp 0 lt frame frameLength;
+
+            unit.getRuleArmor armorRuleset;
+            armorRuleset.getTag color Tag.ARMOR_ENERGY_SHIELD_FLASH_COLOR;
+
+            if eq color 0;
+
+              set color COLOR_X1_BLUE1;
+
+            end;
+
+            set temp frameLength;
+            sub temp frame;
+            mul temp 2; # a parameter that creates a nice flash animation
+            get_shade newShade new_pixel;
+            sub newShade temp;
+
+            if and gt newShade 3 lt newShade 16;
+
+              set_shade new_pixel newShade;
+              set_color new_pixel color;
+
+            end;
+
+          end;
+
+          return new_pixel;
+
       - offset: 10
         code: |
           var int frame;
