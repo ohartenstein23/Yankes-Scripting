@@ -24,6 +24,10 @@
 [DEBUG]	Op:    get_shade       OpId:  0x55  + 0x2     Args:  [var int] [int]                         Desc:  Get shade part to arg1 of pixel color in arg2
 [DEBUG]	Op:    set_shade       OpId:  0x57  + 0x2     Args:  [var int] [int]                         Desc:  Set color part to pixel color in arg1
 [DEBUG]	Op:    add_shade       OpId:  0x59  + 0x2     Args:  [var int] [int]                         Desc:  Add value of shade to pixel color in arg1
+le        Desc: less equal
+ge        Desc: greter equal
+lt        Desc: less
+gt        Desc: greter
 
 [10-09-2018_07-49-58]	[DEBUG]	Script info for: recolorUnitSprite
 [DEBUG]	
